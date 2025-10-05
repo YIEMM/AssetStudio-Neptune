@@ -1,346 +1,424 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Diagnostics;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using super_toolbox;
-using UniversalByteRemover;
-using UniversalFileExtractor;
-using QuickBMSBatchExtractor;
 
 namespace AssetStudio.GUI
 {
     public partial class Plugins
     {
-        public static ToolStripMenuItem CreateDefaultExtractorMenuItem()
+        public class PluginInfo
+        {
+            public string Name { get; set; }
+            public string DisplayName { get; set; }
+            public string DownloadUrl { get; set; }
+            public string FileName { get; set; }
+            public bool IsDownloaded { get; set; }
+            public bool IsExternalTool { get; set; }
+            public bool IsBuiltInDll { get; set; }
+        }
+
+        public static List<PluginInfo> plugins = new List<PluginInfo>
+        {
+            new PluginInfo
+            {
+                Name = "UniversalFileExtractor",
+                DisplayName = "万能二进制提取器",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/FileExtractor.dll",
+                FileName = "FileExtractor.dll",
+                IsDownloaded = false,
+                IsExternalTool = false,
+                IsBuiltInDll = true
+            },
+            new PluginInfo
+            {
+                Name = "UniversalByteRemover",
+                DisplayName = "万能字节移除器",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/ByteRemover.dll",
+                FileName = "ByteRemover.dll",
+                IsDownloaded = false,
+                IsExternalTool = false,
+                IsBuiltInDll = true
+            },
+            new PluginInfo
+            {
+                Name = "quickbmsbatch",
+                DisplayName = "quickbms批量提取器",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/quickbmsbatch.dll",
+                FileName = "quickbmsbatch.dll",
+                IsDownloaded = false,
+                IsExternalTool = false,
+                IsBuiltInDll = true
+            },
+            new PluginInfo
+            {
+                Name = "SuperToolbox",
+                DisplayName = "超级工具箱",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/SuperToolbox.dll",
+                FileName = "SuperToolbox.dll",
+                IsDownloaded = false,
+                IsExternalTool = false,
+                IsBuiltInDll = true
+            },
+            new PluginInfo
+            {
+                Name = "Sofdec2Viewer",
+                DisplayName = "USM视频查看器汉化版",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/Sofdec2_Viewer.exe",
+                FileName = "Sofdec2_Viewer.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "RadVideo",
+                DisplayName = "bink视频播放器",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/radvideo64.exe",
+                FileName = "radvideo64.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "QuickBMS",
+                DisplayName = "quickbms汉化版",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/QuickBMS.exe",
+                FileName = "quickbms.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "quickbms_4gb_files",
+                DisplayName = "quickbms_4gb_files汉化版",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/quickbms_4gb_files.exe",
+                FileName = "quickbms_4gb_files.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "RioX",
+                DisplayName = "RioX汉化版",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/RioX.exe",
+                FileName = "RioX汉化版.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "PakExplorer",
+                DisplayName = "LUCA system pak解包器汉化版",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/pak_explorer.exe",
+                FileName = "pak_explorer.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "PSound",
+                DisplayName = "PlayStation音频提取器",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/PSound.exe",
+                FileName = "PSound.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "WinAsar",
+                DisplayName = "WinAsar汉化版",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/WinAsar.exe",
+                FileName = "WinAsar汉化版.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "WinAsar",
+                DisplayName = "AudioCUE编辑器",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/ACE.exe",
+                FileName = "ACE.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "WinPCK",
+                DisplayName = "完美世界pck解包工具",
+                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/WinPCK.exe",
+                FileName = "WinPCK.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            }
+        };
+
+        public static string pluginsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
+
+        public static void InitializePlugins()
+        {
+            if (!Directory.Exists(pluginsDirectory))
+            {
+                Directory.CreateDirectory(pluginsDirectory);
+            }
+
+            foreach (var plugin in plugins)
+            {
+                string filePath = Path.Combine(pluginsDirectory, plugin.FileName);
+                plugin.IsDownloaded = File.Exists(filePath);
+            }
+        }
+
+        public static ToolStripMenuItem CreatePluginMenuItem(PluginInfo plugin)
         {
             var menuItem = new ToolStripMenuItem();
-            menuItem.Name = "toolStripMenuItem21";
+            menuItem.Name = $"toolStripMenuItem_{plugin.Name}";
             menuItem.Size = new System.Drawing.Size(180, 22);
-            menuItem.Text = "万能二进制提取器";
-            menuItem.Visible = true;
-            menuItem.Click += 万能二进制提取器ToolStripMenuItem_Click;
+
+            if (plugin.IsDownloaded)
+            {
+                menuItem.Text = $"{plugin.DisplayName} ✓";
+                menuItem.Click += (sender, e) => LaunchPlugin(plugin);
+            }
+            else
+            {
+                menuItem.Text = plugin.DisplayName;
+                menuItem.Click += (sender, e) => DownloadPlugin(plugin, menuItem);
+            }
+
+            var contextMenu = new ContextMenuStrip();
+
+            var downloadItem = new ToolStripMenuItem("下载");
+            downloadItem.Click += (sender, e) => DownloadPlugin(plugin, menuItem);
+
+            var launchItem = new ToolStripMenuItem("启动");
+            launchItem.Click += (sender, e) => LaunchPlugin(plugin);
+
+            var uninstallItem = new ToolStripMenuItem("卸载");
+            uninstallItem.Click += (sender, e) => UninstallPlugin(plugin, menuItem);
+
+            contextMenu.Items.Add(downloadItem);
+            contextMenu.Items.Add(launchItem);
+            contextMenu.Items.Add(uninstallItem);
+
+            contextMenu.Opening += (sender, e) =>
+            {
+                string filePath = Path.Combine(pluginsDirectory, plugin.FileName);
+                bool fileExists = File.Exists(filePath);
+
+                if (fileExists != plugin.IsDownloaded)
+                {
+                    plugin.IsDownloaded = fileExists;
+
+                    if (plugin.IsDownloaded)
+                    {
+                        menuItem.Text = $"{plugin.DisplayName} ✓";
+                        menuItem.Click -= (sender, e) => DownloadPlugin(plugin, menuItem);
+                        menuItem.Click += (sender, e) => LaunchPlugin(plugin);
+                    }
+                    else
+                    {
+                        menuItem.Text = plugin.DisplayName;
+                        menuItem.Click -= (sender, e) => LaunchPlugin(plugin);
+                        menuItem.Click += (sender, e) => DownloadPlugin(plugin, menuItem);
+                    }
+                }
+
+                downloadItem.Enabled = !plugin.IsDownloaded;
+                launchItem.Enabled = plugin.IsDownloaded;
+                uninstallItem.Enabled = plugin.IsDownloaded;
+            };
+
+            menuItem.MouseUp += (sender, e) =>
+            {
+                if (e.Button == MouseButtons.Right)
+                {
+                    contextMenu.Show(Cursor.Position);
+                }
+            };
+
             return menuItem;
         }
 
-        public static ToolStripMenuItem CreateDefaultRemoverMenuItem()
+        private static void DownloadPlugin(PluginInfo plugin, ToolStripMenuItem menuItem)
         {
-            var menuItem = new ToolStripMenuItem();
-            menuItem.Name = "toolStripMenuItem22";
-            menuItem.Size = new System.Drawing.Size(180, 22);
-            menuItem.Text = "万能字节移除器";
-            menuItem.Visible = true;
-            menuItem.Click += 万能字节移除器ToolStripMenuItem_Click;
-            return menuItem;
+            if (plugin.IsDownloaded)
+            {
+                LaunchPlugin(plugin);
+                return;
+            }
+
+            var downloadDialog = new DownloadProgressForm(plugin);
+            downloadDialog.FormClosed += (s, e) =>
+            {
+                if (downloadDialog.DialogResult == DialogResult.OK)
+                {
+                    string filePath = Path.Combine(pluginsDirectory, plugin.FileName);
+                    if (File.Exists(filePath))
+                    {
+                        plugin.IsDownloaded = true;
+                        menuItem.Text = $"{plugin.DisplayName} ✓";
+
+                        menuItem.Click -= (sender, e) => DownloadPlugin(plugin, menuItem);
+                        menuItem.Click += (sender, e) => LaunchPlugin(plugin);
+
+                        MessageBox.Show($"{plugin.DisplayName}下载完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"{plugin.DisplayName}下载文件验证失败！", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+
+                downloadDialog.Dispose();
+            };
+
+            downloadDialog.Show();
         }
 
-        public static ToolStripMenuItem CreateSofdec2ViewerMenuItem()
+        public static void LaunchPlugin(PluginInfo plugin)
         {
-            var menuItem = new ToolStripMenuItem();
-            menuItem.Name = "toolStripMenuItem23";
-            menuItem.Size = new System.Drawing.Size(180, 22);
-            menuItem.Text = "USM视频查看工具汉化版";
-            menuItem.Visible = true;
-            menuItem.Click += Sofdec2ViewerToolStripMenuItem_Click;
-            return menuItem;
-        }
+            if (!plugin.IsDownloaded)
+            {
+                MessageBox.Show($"请先下载{plugin.DisplayName}", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
-        public static ToolStripMenuItem CreateRadVideoMenuItem()
-        {
-            var menuItem = new ToolStripMenuItem();
-            menuItem.Name = "toolStripMenuItem24";
-            menuItem.Size = new System.Drawing.Size(180, 22);
-            menuItem.Text = "radvideo64.exe";
-            menuItem.Visible = true;
-            menuItem.Click += RadVideoToolStripMenuItem_Click;
-            return menuItem;
-        }
-
-        public static ToolStripMenuItem CreateQuickBmsMenuItem()
-        {
-            var menuItem = new ToolStripMenuItem();
-            menuItem.Name = "toolStripMenuItem25";
-            menuItem.Size = new System.Drawing.Size(180, 22);
-            menuItem.Text = "quickbmsbatch";
-            menuItem.Visible = true;
-            menuItem.Click += QuickBmsBatchToolStripMenuItem_Click;
-            return menuItem;
-        }
-
-        public static ToolStripMenuItem CreateSuperToolboxMenuItem()
-        {
-            var menuItem = new ToolStripMenuItem();
-            menuItem.Name = "toolStripMenuItem26";
-            menuItem.Size = new System.Drawing.Size(180, 22);
-            menuItem.Text = "超级工具箱";
-            menuItem.Visible = true;
-            menuItem.Click += SuperToolboxToolStripMenuItem_Click;
-            return menuItem;
-        }
-
-        public static ToolStripMenuItem CreateRioXMenuItem()
-        {
-            var menuItem = new ToolStripMenuItem();
-            menuItem.Name = "toolStripMenuItem27";
-            menuItem.Size = new System.Drawing.Size(180, 22);
-            menuItem.Text = "RioX汉化版";
-            menuItem.Visible = true;
-            menuItem.Click += RioXToolStripMenuItem_Click;
-            return menuItem;
-        }
-
-        public static ToolStripMenuItem CreatePakExplorerMenuItem()
-        {
-            var menuItem = new ToolStripMenuItem();
-            menuItem.Name = "toolStripMenuItem28";
-            menuItem.Size = new System.Drawing.Size(180, 22);
-            menuItem.Text = "LUCA system pak解包器";
-            menuItem.Visible = true;
-            menuItem.Click += PakExplorerToolStripMenuItem_Click;
-            return menuItem;
-        }
-
-        public static ToolStripMenuItem CreatePSoundMenuItem()
-        {
-            var menuItem = new ToolStripMenuItem();
-            menuItem.Name = "toolStripMenuItem29";
-            menuItem.Size = new System.Drawing.Size(180, 22);
-            menuItem.Text = "PlayStation音频提取器";
-            menuItem.Visible = true;
-            menuItem.Click += PSoundToolStripMenuItem_Click;
-            return menuItem;
-        }
-
-        public static ToolStripMenuItem CreateWinAsarMenuItem()
-        {
-            var menuItem = new ToolStripMenuItem();
-            menuItem.Name = "toolStripMenuItem30";
-            menuItem.Size = new System.Drawing.Size(180, 22);
-            menuItem.Text = "WinAsar汉化版";
-            menuItem.Visible = true;
-            menuItem.Click += WinAsarToolStripMenuItem_Click;
-            return menuItem;
-        }
-
-        public static ToolStripMenuItem CreateWinPCKMenuItem()
-        {
-            var menuItem = new ToolStripMenuItem();
-            menuItem.Name = "toolStripMenuItem31";
-            menuItem.Size = new System.Drawing.Size(180, 22);
-            menuItem.Text = "完美世界pck解包工具";
-            menuItem.Visible = true;
-            menuItem.Click += WinPCKToolStripMenuItem_Click;
-            return menuItem;
-        }
-
-        private static void 万能二进制提取器ToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
-            var formFromExtractor = new FileExtractor();
-            formFromExtractor.Show();
-        }
-
-        private static void 万能字节移除器ToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
-            var formFromByteRemover = new ByteRemover();
-            formFromByteRemover.Show();
-        }
-
-        private static void SuperToolboxToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
-            var formFromSuperToolbox = new SuperToolbox();
-            formFromSuperToolbox.Show();
-        }
-
-        private static void QuickBmsBatchToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
-            var formFromQuickBmsBatch = new QuickBMSBatchExtractor.MainForm();
-            formFromQuickBmsBatch.Show();
-        }
-
-        private static void Sofdec2ViewerToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
             try
             {
-                string relativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins", "USM视频查看工具汉化版.exe");
-                if (File.Exists(relativePath))
+                string filePath = Path.Combine(pluginsDirectory, plugin.FileName);
+
+                if (!File.Exists(filePath))
                 {
-                    Process.Start(relativePath);
+                    plugin.IsDownloaded = false;
+                    MessageBox.Show($"{plugin.DisplayName} 文件不存在，请重新下载", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
-                else
+
+                if (plugin.IsExternalTool)
                 {
-                    MessageBox.Show("未找到USM视频查看工具汉化版.exe，请检查路径。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Process.Start(filePath);
+                }
+                else if (plugin.IsBuiltInDll)
+                {
+                    LaunchBuiltInDll(plugin, filePath);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"启动USM视频查看工具汉化版.exe出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"启动{plugin.DisplayName}失败:{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private static void RadVideoToolStripMenuItem_Click(object sender, System.EventArgs e)
+        private static void LaunchBuiltInDll(PluginInfo plugin, string filePath)
         {
             try
             {
-                string relativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins", "radvideo64.exe");
-                if (File.Exists(relativePath))
+                Assembly assembly = Assembly.LoadFrom(filePath);
+
+                var formTypes = assembly.GetTypes()
+                    .Where(t => typeof(Form).IsAssignableFrom(t) && !t.IsAbstract)
+                    .ToList();
+
+                if (formTypes.Count == 0)
                 {
-                    Process.Start(relativePath);
+                    throw new Exception($"在{plugin.FileName}中找不到窗体类");
+                }
+
+                Type mainFormType = formTypes.FirstOrDefault(t =>
+                    t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase)) ?? formTypes[0];
+
+                Form mainForm = Activator.CreateInstance(mainFormType) as Form;
+                if (mainForm != null)
+                {
+                    mainForm.Show();
                 }
                 else
                 {
-                    MessageBox.Show("未找到radvideo64.exe文件，请检查路径。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    throw new Exception($"无法创建窗体实例: {mainFormType.FullName}");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"启动radvideo64.exe时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"加载内置DLL插件失败:{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private static void FsBankToolStripMenuItem_Click(object sender, System.EventArgs e)
+        private static void UninstallPlugin(PluginInfo plugin, ToolStripMenuItem menuItem)
         {
-            try
+            if (!plugin.IsDownloaded)
             {
-                string relativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins", "fsbank.exe");
-                if (File.Exists(relativePath))
-                {
-                    Process.Start(relativePath);
-                }
-                else
-                {
-                    MessageBox.Show("未找到fsbank.exe文件，请检查路径。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                return;
             }
-            catch (Exception ex)
+
+            var result = MessageBox.Show($"确定要卸载{plugin.DisplayName}吗？", "确认卸载",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
             {
-                MessageBox.Show($"启动fsbank.exe时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                try
+                {
+                    string filePath = Path.Combine(pluginsDirectory, plugin.FileName);
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+
+                    plugin.IsDownloaded = false;
+                    menuItem.Text = plugin.DisplayName;
+
+                    menuItem.Click -= (sender, e) => LaunchPlugin(plugin);
+                    menuItem.Click += (sender, e) => DownloadPlugin(plugin, menuItem);
+
+                    MessageBox.Show($"{plugin.DisplayName}卸载完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"卸载{plugin.DisplayName}失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
-        private static void RioXToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
-            try
-            {
-                string relativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins", "RioX汉化版.exe");
-                if (File.Exists(relativePath))
-                {
-                    Process.Start(relativePath);
-                }
-                else
-                {
-                    MessageBox.Show("未找到RioX汉化版.exe文件，请检查路径。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"启动RioX汉化版.exe时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private static void PakExplorerToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
-            try
-            {
-                string relativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins", "pak_explorer.exe");
-                if (File.Exists(relativePath))
-                {
-                    Process.Start(relativePath);
-                }
-                else
-                {
-                    MessageBox.Show("未找到pak_explorer.exe文件，请检查路径。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"启动pak_explorer.exe时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private static void PSoundToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
-            try
-            {
-                string relativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins", "PSound.exe");
-                if (File.Exists(relativePath))
-                {
-                    Process.Start(relativePath);
-                }
-                else
-                {
-                    MessageBox.Show("未找到PSound.exe文件，请检查路径。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"启动PSound.exe时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private static void WinAsarToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
-            try
-            {
-                string relativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins", "WinAsar汉化版.exe");
-                if (File.Exists(relativePath))
-                {
-                    Process.Start(relativePath);
-                }
-                else
-                {
-                    MessageBox.Show("未找到WinAsar汉化版.exe文件，请检查路径。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"启动WinAsar汉化版.exe时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private static void WinPCKToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
-            try
-            {
-                string relativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins", "WinPCK.exe");
-                if (File.Exists(relativePath))
-                {
-                    Process.Start(relativePath);
-                }
-                else
-                {
-                    MessageBox.Show("未找到WinPCK.exe文件，请检查路径。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"启动WinPCK.exe时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
         public static void AddMenuItemsToPluginMenu(ToolStripMenuItem pluginMenu)
         {
-            var extractorMenuItem = CreateDefaultExtractorMenuItem();
-            var removerMenuItem = CreateDefaultRemoverMenuItem();
-            var sofdec2ViewerMenuItem = CreateSofdec2ViewerMenuItem();
-            var radVideoMenuItem = CreateRadVideoMenuItem();
-            var quicbmsbatchMenuItem = CreateQuickBmsMenuItem();
-            var superToolboxMenuItem = CreateSuperToolboxMenuItem();
-            var rioXMenuItem = CreateRioXMenuItem();
-            var pakExplorerMenuItem = CreatePakExplorerMenuItem();
-            var pSoundMenuItem = CreatePSoundMenuItem();
-            var winAsarMenuItem = CreateWinAsarMenuItem();
-            var winPCKMenuItem = CreateWinPCKMenuItem();
+            InitializePlugins();
 
-            pluginMenu.DropDownItems.Add(extractorMenuItem);
-            pluginMenu.DropDownItems.Add(removerMenuItem);
-            pluginMenu.DropDownItems.Add(sofdec2ViewerMenuItem);
-            pluginMenu.DropDownItems.Add(radVideoMenuItem);
-            pluginMenu.DropDownItems.Add(quicbmsbatchMenuItem);
-            pluginMenu.DropDownItems.Add(superToolboxMenuItem);
-            pluginMenu.DropDownItems.Add(rioXMenuItem);
-            pluginMenu.DropDownItems.Add(pakExplorerMenuItem);
-            pluginMenu.DropDownItems.Add(pSoundMenuItem);
-            pluginMenu.DropDownItems.Add(winAsarMenuItem);
-            pluginMenu.DropDownItems.Add(winPCKMenuItem);
+            pluginMenu.DropDownItems.Clear();
+
+            foreach (var plugin in plugins)
+            {
+                var menuItem = CreatePluginMenuItem(plugin);
+                pluginMenu.DropDownItems.Add(menuItem);
+            }
+
+            pluginMenu.DropDownItems.Add(new ToolStripSeparator());
+
+            var managePluginsItem = new ToolStripMenuItem("插件管理器");
+            managePluginsItem.Click += (sender, e) => ShowPluginManager();
+            pluginMenu.DropDownItems.Add(managePluginsItem);
+        }
+
+        private static void ShowPluginManager()
+        {
+            var managerForm = new PluginManagerForm(plugins);
+            managerForm.ShowDialog();
         }
 
         public static void AddMenuItemsToMainForm(MainForm mainForm)
@@ -349,6 +427,512 @@ namespace AssetStudio.GUI
             if (pluginToolStripMenuItem != null)
             {
                 AddMenuItemsToPluginMenu(pluginToolStripMenuItem);
+            }
+        }
+
+        public class DownloadProgressForm : Form
+        {
+            private CancellationTokenSource cancellationTokenSource;
+            private ProgressBar progressBar;
+            private Label statusLabel;
+            private Plugins.PluginInfo plugin;
+            public bool IsDownloading { get; private set; }
+            private bool isDownloadCompleted = false;
+            private string filePath;
+            private long totalBytes = 0;
+            private long totalDownloadedBytes = 0;
+            private readonly object lockObject = new object();
+
+            public DownloadProgressForm(Plugins.PluginInfo plugin)
+            {
+                this.plugin = plugin;
+                this.cancellationTokenSource = new CancellationTokenSource();
+                InitializeComponent();
+                this.Load += async (s, e) => await StartDownloadAsync();
+            }
+
+            private void InitializeComponent()
+            {
+                this.Size = new Size(400, 150);
+                this.Text = $"下载{plugin.DisplayName}";
+                this.StartPosition = FormStartPosition.CenterScreen;
+                this.FormBorderStyle = FormBorderStyle.FixedDialog;
+                this.MaximizeBox = false;
+                this.MinimizeBox = false;
+                this.ShowInTaskbar = false;
+
+                statusLabel = new Label
+                {
+                    Text = "准备下载...",
+                    Location = new Point(20, 20),
+                    Size = new Size(360, 20)
+                };
+
+                progressBar = new ProgressBar
+                {
+                    Location = new Point(20, 50),
+                    Size = new Size(360, 23),
+                    Style = ProgressBarStyle.Continuous
+                };
+
+                var cancelButton = new Button
+                {
+                    Text = "取消",
+                    Location = new Point(305, 80),
+                    Size = new Size(75, 23)
+                };
+                cancelButton.Click += (s, e) =>
+                {
+                    cancellationTokenSource.Cancel();
+                    this.DialogResult = DialogResult.Cancel;
+                    this.Close();
+                };
+
+                this.Controls.Add(statusLabel);
+                this.Controls.Add(progressBar);
+                this.Controls.Add(cancelButton);
+            }
+
+            private HttpClient CreateOptimizedHttpClient()
+            {
+                var handler = new HttpClientHandler()
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true,
+                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+                    UseProxy = false,
+                    UseCookies = false,
+                    MaxConnectionsPerServer = 20
+                };
+
+                var client = new HttpClient(handler)
+                {
+                    Timeout = TimeSpan.FromMinutes(30)
+                };
+
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+                client.DefaultRequestHeaders.Add("Accept", "*/*");
+                client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+                client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+                client.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+
+                return client;
+            }
+
+            private async Task StartDownloadAsync()
+            {
+                IsDownloading = true;
+                try
+                {
+                    if (!Directory.Exists(Plugins.pluginsDirectory))
+                    {
+                        Directory.CreateDirectory(Plugins.pluginsDirectory);
+                    }
+
+                    filePath = Path.Combine(Plugins.pluginsDirectory, plugin.FileName);
+
+                    totalBytes = await GetFileSize(plugin.DownloadUrl);
+
+                    if (totalBytes > 5 * 1024 * 1024)
+                    {
+                        await DownloadFileWithMultiThreadAsync(plugin.DownloadUrl, filePath, totalBytes);
+                    }
+                    else
+                    {
+                        await DownloadFileWithProgressAsync(plugin.DownloadUrl, filePath);
+                    }
+
+                    statusLabel.Text = "下载完成！";
+                    isDownloadCompleted = true;
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                catch (OperationCanceledException)
+                {
+                    DeleteIncompleteFile();
+                    statusLabel.Text = "下载已取消";
+                    this.DialogResult = DialogResult.Cancel;
+                    this.Close();
+                }
+                catch (Exception ex)
+                {
+                    DeleteIncompleteFile();
+                    statusLabel.Text = $"下载错误:{ex.Message}";
+                    this.DialogResult = DialogResult.Cancel;
+                    this.Close();
+                }
+                finally
+                {
+                    IsDownloading = false;
+                }
+            }
+
+            private async Task<long> GetFileSize(string url)
+            {
+                try
+                {
+                    using (var client = CreateOptimizedHttpClient())
+                    using (var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, url)))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            return response.Content.Headers.ContentLength ?? 0;
+                        }
+                    }
+                }
+                catch
+                {
+                }
+                return 0;
+            }
+
+            private async Task DownloadFileWithMultiThreadAsync(string fileUrl, string savePath, long fileSize)
+            {
+                const int threadCount = 4;
+                var chunkSize = fileSize / threadCount;
+                var tasks = new List<Task>();
+
+                using (var fileStream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.Write))
+                {
+                    fileStream.SetLength(fileSize);
+                }
+
+                totalDownloadedBytes = 0;
+
+                for (int i = 0; i < threadCount; i++)
+                {
+                    var startByte = i * chunkSize;
+                    var endByte = (i == threadCount - 1) ? fileSize - 1 : (i + 1) * chunkSize - 1;
+                    tasks.Add(DownloadChunkAsync(fileUrl, savePath, startByte, endByte, i));
+                }
+
+                await Task.WhenAll(tasks);
+            }
+
+            private async Task DownloadChunkAsync(string fileUrl, string savePath, long startByte, long endByte, int chunkIndex)
+            {
+                using (var chunkClient = CreateOptimizedHttpClient())
+                {
+                    var request = new HttpRequestMessage(HttpMethod.Get, fileUrl);
+                    request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(startByte, endByte);
+
+                    using (var response = await chunkClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+                    {
+                        response.EnsureSuccessStatusCode();
+
+                        using (var stream = await response.Content.ReadAsStreamAsync())
+                        using (var fileStream = new FileStream(savePath, FileMode.Open, FileAccess.Write, FileShare.Write))
+                        {
+                            fileStream.Seek(startByte, SeekOrigin.Begin);
+
+                            var buffer = new byte[32768];
+                            int bytesRead;
+
+                            while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                            {
+                                await fileStream.WriteAsync(buffer, 0, bytesRead);
+
+                                lock (lockObject)
+                                {
+                                    totalDownloadedBytes += bytesRead;
+                                    UpdateProgressSafe();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            private async Task DownloadFileWithProgressAsync(string fileUrl, string savePath)
+            {
+                using (var client = CreateOptimizedHttpClient())
+                using (var response = await client.GetAsync(fileUrl, HttpCompletionOption.ResponseHeadersRead))
+                {
+                    response.EnsureSuccessStatusCode();
+
+                    if (totalBytes == 0)
+                    {
+                        totalBytes = response.Content.Headers.ContentLength ?? 0;
+                    }
+
+                    using (var contentStream = await response.Content.ReadAsStreamAsync())
+                    using (var fileStream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                    {
+                        var buffer = new byte[8192];
+                        var currentBytesRead = 0L;
+                        int bytesRead;
+
+                        while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length, cancellationTokenSource.Token)) > 0)
+                        {
+                            await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationTokenSource.Token);
+                            currentBytesRead += bytesRead;
+
+                            if (totalBytes > 0)
+                            {
+                                var percentage = (int)((double)currentBytesRead / totalBytes * 100);
+                                UpdateProgressUI(percentage, currentBytesRead);
+                            }
+
+                            cancellationTokenSource.Token.ThrowIfCancellationRequested();
+                        }
+                    }
+                }
+            }
+
+            private void UpdateProgressSafe()
+            {
+                if (totalBytes <= 0) return;
+
+                var progress = (totalDownloadedBytes * 100) / totalBytes;
+
+                if (progressBar.InvokeRequired)
+                {
+                    progressBar.Invoke(new Action(() => progressBar.Value = (int)progress));
+                    statusLabel.Invoke(new Action(() => statusLabel.Text = $"下载中:{progress}%"));
+                }
+                else
+                {
+                    progressBar.Value = (int)progress;
+                    statusLabel.Text = $"下载中:{progress}%";
+                }
+            }
+
+            private void UpdateProgressUI(int percentage, long bytesRead)
+            {
+                if (progressBar.InvokeRequired)
+                {
+                    progressBar.Invoke(new Action(() => progressBar.Value = percentage));
+                    statusLabel.Invoke(new Action(() => statusLabel.Text = $"下载中:{bytesRead / 1024}KB"));
+                }
+                else
+                {
+                    progressBar.Value = percentage;
+                    statusLabel.Text = $"下载中:{bytesRead / 1024}KB";
+                }
+            }
+
+            private void DeleteIncompleteFile()
+            {
+                try
+                {
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            protected override void OnFormClosing(FormClosingEventArgs e)
+            {
+                if (IsDownloading && !isDownloadCompleted)
+                {
+                    var result = MessageBox.Show("下载正在进行中，确定要取消吗？",
+                        "确认关闭", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (result == DialogResult.No)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                    else
+                    {
+                        DeleteIncompleteFile();
+                    }
+                }
+
+                cancellationTokenSource?.Cancel();
+                base.OnFormClosing(e);
+            }
+        }
+
+        public class PluginManagerForm : Form
+        {
+            private List<Plugins.PluginInfo> plugins;
+            private ListView listView;
+            private Panel buttonPanel;
+
+            public PluginManagerForm(List<Plugins.PluginInfo> plugins)
+            {
+                this.plugins = plugins;
+                InitializeComponent();
+                LoadPlugins();
+            }
+
+            private void InitializeComponent()
+            {
+                this.StartPosition = FormStartPosition.CenterScreen;
+                this.FormBorderStyle = FormBorderStyle.Sizable;
+                this.MinimumSize = new Size(500, 300);
+                this.Text = "插件管理器";
+                this.Size = new Size(500, 400);
+
+                var tableLayout = new TableLayoutPanel
+                {
+                    Dock = DockStyle.Fill,
+                    RowCount = 2,
+                    ColumnCount = 1
+                };
+                tableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+                tableLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+
+                listView = new ListView
+                {
+                    View = View.Details,
+                    FullRowSelect = true,
+                    GridLines = true,
+                    Dock = DockStyle.Fill,
+                    MultiSelect = false
+                };
+
+                listView.Columns.Add("插件名称", 100);
+                listView.Columns.Add("状态", 100);
+                listView.Columns.Add("文件", 100);
+                listView.Columns.Add("类型", 100);
+
+                buttonPanel = new Panel
+                {
+                    Dock = DockStyle.Fill,
+                    Height = 50
+                };
+
+                var downloadButton = new Button { Text = "下载", Location = new Point(10, 10), Size = new Size(75, 23) };
+                var launchButton = new Button { Text = "启动", Location = new Point(95, 10), Size = new Size(75, 23) };
+                var uninstallButton = new Button { Text = "卸载", Location = new Point(180, 10), Size = new Size(75, 23) };
+                var refreshButton = new Button { Text = "刷新", Location = new Point(265, 10), Size = new Size(75, 23) };
+                var closeButton = new Button { Text = "关闭", Location = new Point(350, 10), Size = new Size(75, 23) };
+
+                downloadButton.Click += (s, e) => DownloadSelected();
+                launchButton.Click += (s, e) => LaunchSelected();
+                uninstallButton.Click += (s, e) => UninstallSelected();
+                refreshButton.Click += (s, e) => LoadPlugins();
+                closeButton.Click += (s, e) => this.Close();
+
+                buttonPanel.Controls.Add(downloadButton);
+                buttonPanel.Controls.Add(launchButton);
+                buttonPanel.Controls.Add(uninstallButton);
+                buttonPanel.Controls.Add(refreshButton);
+                buttonPanel.Controls.Add(closeButton);
+
+                tableLayout.Controls.Add(listView, 0, 0);
+                tableLayout.Controls.Add(buttonPanel, 0, 1);
+
+                this.Controls.Add(tableLayout);
+
+                this.Resize += (s, e) => AutoResizeColumns();
+            }
+
+            private void AutoResizeColumns()
+            {
+                if (listView != null && listView.Columns.Count > 0 && listView.Width > 0)
+                {
+                    int totalWidth = listView.Width - 25;
+                    int columnCount = listView.Columns.Count;
+
+                    int columnWidth = totalWidth / columnCount;
+                    foreach (ColumnHeader column in listView.Columns)
+                    {
+                        column.Width = columnWidth;
+                    }
+                }
+            }
+
+            private void LoadPlugins()
+            {
+                listView.Items.Clear();
+                foreach (var plugin in plugins)
+                {
+                    var item = new ListViewItem(plugin.DisplayName);
+                    item.SubItems.Add(plugin.IsDownloaded ? "已下载" : "未下载");
+                    item.SubItems.Add(plugin.FileName);
+
+                    string pluginType = "外部工具";
+                    if (plugin.IsBuiltInDll)
+                    {
+                        pluginType = "内置DLL工具";
+                    }
+                    else if (!plugin.IsExternalTool)
+                    {
+                        pluginType = "内置工具";
+                    }
+                    item.SubItems.Add(pluginType);
+
+                    item.Tag = plugin;
+
+                    if (plugin.IsDownloaded)
+                    {
+                        item.BackColor = SystemColors.Info;
+                        item.ForeColor = SystemColors.InfoText;
+                    }
+                    else
+                    {
+                        item.BackColor = SystemColors.ControlLight;
+                        item.ForeColor = SystemColors.ControlText;
+                    }
+
+                    listView.Items.Add(item);
+                }
+            }
+
+            private void DownloadSelected()
+            {
+                if (listView.SelectedItems.Count > 0)
+                {
+                    var plugin = listView.SelectedItems[0].Tag as Plugins.PluginInfo;
+                    if (plugin != null)
+                    {
+                        var downloadDialog = new DownloadProgressForm(plugin);
+                        downloadDialog.FormClosed += (s, e) =>
+                        {
+                            if (downloadDialog.DialogResult == DialogResult.OK)
+                            {
+                                plugin.IsDownloaded = true;
+                                LoadPlugins();
+                                MessageBox.Show($"{plugin.DisplayName}下载完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                            downloadDialog.Dispose();
+                        };
+                        downloadDialog.Show();
+                    }
+                }
+            }
+
+            private void LaunchSelected()
+            {
+                if (listView.SelectedItems.Count > 0)
+                {
+                    var plugin = listView.SelectedItems[0].Tag as Plugins.PluginInfo;
+                    if (plugin != null && plugin.IsDownloaded)
+                    {
+                        Plugins.LaunchPlugin(plugin);
+                    }
+                }
+            }
+
+            private void UninstallSelected()
+            {
+                if (listView.SelectedItems.Count > 0)
+                {
+                    var plugin = listView.SelectedItems[0].Tag as Plugins.PluginInfo;
+                    if (plugin != null && plugin.IsDownloaded)
+                    {
+                        var result = MessageBox.Show($"确定要卸载{plugin.DisplayName}吗？", "确认卸载",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                        if (result == DialogResult.Yes)
+                        {
+                            string filePath = Path.Combine(Plugins.pluginsDirectory, plugin.FileName);
+                            if (File.Exists(filePath))
+                            {
+                                File.Delete(filePath);
+                                plugin.IsDownloaded = false;
+                                LoadPlugins();
+                                MessageBox.Show($"{plugin.DisplayName}卸载完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
