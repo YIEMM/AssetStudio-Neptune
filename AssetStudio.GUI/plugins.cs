@@ -32,7 +32,7 @@ namespace AssetStudio.GUI
             {
                 Name = "UniversalFileExtractor",
                 DisplayName = "万能二进制提取器",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/FileExtractor.dll",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/FileExtractor.dll",
                 FileName = "FileExtractor.dll",
                 IsDownloaded = false,
                 IsExternalTool = false,
@@ -42,7 +42,7 @@ namespace AssetStudio.GUI
             {
                 Name = "UniversalByteRemover",
                 DisplayName = "万能字节移除器",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/ByteRemover.dll",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/ByteRemover.dll",
                 FileName = "ByteRemover.dll",
                 IsDownloaded = false,
                 IsExternalTool = false,
@@ -52,7 +52,7 @@ namespace AssetStudio.GUI
             {
                 Name = "quickbmsbatch",
                 DisplayName = "quickbms批量提取器",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/quickbmsbatch.dll",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/quickbmsbatch.dll",
                 FileName = "quickbmsbatch.dll",
                 IsDownloaded = false,
                 IsExternalTool = false,
@@ -62,7 +62,7 @@ namespace AssetStudio.GUI
             {
                 Name = "SuperToolbox",
                 DisplayName = "超级工具箱",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/Super-toolbox.dll",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/Super-toolbox.dll",
                 FileName = "Super-toolbox.dll",
                 IsDownloaded = false,
                 IsExternalTool = false,
@@ -72,7 +72,7 @@ namespace AssetStudio.GUI
             {
                 Name = "Sofdec2Viewer",
                 DisplayName = "USM视频查看器汉化版",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/Sofdec2_Viewer.exe",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/Sofdec2_Viewer.exe",
                 FileName = "Sofdec2_Viewer.exe",
                 IsDownloaded = false,
                 IsExternalTool = true,
@@ -82,7 +82,7 @@ namespace AssetStudio.GUI
             {
                 Name = "RadVideo",
                 DisplayName = "bink视频播放器",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/radvideo64.exe",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/radvideo64.exe",
                 FileName = "radvideo64.exe",
                 IsDownloaded = false,
                 IsExternalTool = true,
@@ -92,7 +92,7 @@ namespace AssetStudio.GUI
             {
                 Name = "QuickBMS",
                 DisplayName = "quickbms汉化版",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/quickbms.exe",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/quickbms.exe",
                 FileName = "quickbms.exe",
                 IsDownloaded = false,
                 IsExternalTool = true,
@@ -102,7 +102,7 @@ namespace AssetStudio.GUI
             {
                 Name = "quickbms_4gb_files",
                 DisplayName = "quickbms_4gb_files汉化版",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/quickbms_4gb_files.exe",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/quickbms_4gb_files.exe",
                 FileName = "quickbms_4gb_files.exe",
                 IsDownloaded = false,
                 IsExternalTool = true,
@@ -112,7 +112,7 @@ namespace AssetStudio.GUI
             {
                 Name = "RioX",
                 DisplayName = "RioX汉化版",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/RioX.exe",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/RioX.exe",
                 FileName = "RioX汉化版.exe",
                 IsDownloaded = false,
                 IsExternalTool = true,
@@ -122,7 +122,7 @@ namespace AssetStudio.GUI
             {
                 Name = "PakExplorer",
                 DisplayName = "LUCA system pak解包器汉化版",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/pak_explorer.exe",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/pak_explorer.exe",
                 FileName = "pak_explorer.exe",
                 IsDownloaded = false,
                 IsExternalTool = true,
@@ -132,7 +132,7 @@ namespace AssetStudio.GUI
             {
                 Name = "PSound",
                 DisplayName = "PlayStation音频提取器",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/PSound.exe",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/PSound.exe",
                 FileName = "PSound.exe",
                 IsDownloaded = false,
                 IsExternalTool = true,
@@ -142,7 +142,7 @@ namespace AssetStudio.GUI
             {
                 Name = "WinAsar",
                 DisplayName = "WinAsar汉化版",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/WinAsar.exe",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/WinAsar.exe",
                 FileName = "WinAsar汉化版.exe",
                 IsDownloaded = false,
                 IsExternalTool = true,
@@ -152,7 +152,7 @@ namespace AssetStudio.GUI
             {
                 Name = "WinAsar",
                 DisplayName = "AudioCUE编辑器",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/ACE.exe",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/ACE.exe",
                 FileName = "ACE.exe",
                 IsDownloaded = false,
                 IsExternalTool = true,
@@ -162,7 +162,7 @@ namespace AssetStudio.GUI
             {
                 Name = "WinPCK",
                 DisplayName = "完美世界pck解包工具",
-                DownloadUrl = "https://github.com/595554963github/AssetStudio-Neptune/releases/download/plugins/WinPCK.exe",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/WinPCK.exe",
                 FileName = "WinPCK.exe",
                 IsDownloaded = false,
                 IsExternalTool = true,
