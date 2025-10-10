@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -67,6 +68,16 @@ namespace AssetStudio.GUI
                 IsDownloaded = false,
                 IsExternalTool = false,
                 IsBuiltInDll = true
+            },
+            new PluginInfo
+            {
+                Name = "CriFsV2Lib.Definitions.dll",
+                DisplayName = "超级工具箱dll依赖",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/CriFsV2Lib.Definitions.dll",
+                FileName = "CriFsV2Lib.Definitions.dll",
+                IsDownloaded = false,
+                IsExternalTool = false,
+                IsBuiltInDll = false
             },
             new PluginInfo
             {
@@ -167,6 +178,36 @@ namespace AssetStudio.GUI
                 IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "RetsukoSoundTool",
+                DisplayName = "3ds/wiiu音频提取器",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/RetsukoSoundTool.exe",
+                FileName = "RetsukoSoundTool.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "Motrix",
+                DisplayName = "免费不限速下载器",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/Motrix_x64.exe",
+                FileName = "Motrix_x64.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
+            },
+            new PluginInfo
+            {
+                Name = "UmodelHelper",
+                DisplayName = "Umodel辅助器",
+                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/UmodelHelper.exe",
+                FileName = "UmodelHelper.exe",
+                IsDownloaded = false,
+                IsExternalTool = true,
+                IsBuiltInDll = false
             }
         };
 
@@ -192,18 +233,7 @@ namespace AssetStudio.GUI
             menuItem.Name = $"toolStripMenuItem_{plugin.Name}";
             menuItem.Size = new System.Drawing.Size(180, 22);
 
-            if (plugin.IsDownloaded)
-            {
-                menuItem.Text = $"{plugin.DisplayName} ✓";
-                menuItem.Click += (sender, e) => LaunchPlugin(plugin);
-            }
-            else
-            {
-                menuItem.Text = plugin.DisplayName;
-                menuItem.Click += (sender, e) => DownloadPlugin(plugin, menuItem);
-            }
-
-            var contextMenu = new ContextMenuStrip();
+            UpdateMainMenuItemText(plugin, menuItem);
 
             var downloadItem = new ToolStripMenuItem("下载");
             downloadItem.Click += (sender, e) => DownloadPlugin(plugin, menuItem);
@@ -214,11 +244,13 @@ namespace AssetStudio.GUI
             var uninstallItem = new ToolStripMenuItem("卸载");
             uninstallItem.Click += (sender, e) => UninstallPlugin(plugin, menuItem);
 
-            contextMenu.Items.Add(downloadItem);
-            contextMenu.Items.Add(launchItem);
-            contextMenu.Items.Add(uninstallItem);
+            menuItem.DropDownItems.Add(downloadItem);
+            menuItem.DropDownItems.Add(launchItem);
+            menuItem.DropDownItems.Add(uninstallItem);
 
-            contextMenu.Opening += (sender, e) =>
+            UpdateSubMenuItemsState(plugin, downloadItem, launchItem, uninstallItem);
+
+            menuItem.MouseEnter += (sender, e) =>
             {
                 string filePath = Path.Combine(pluginsDirectory, plugin.FileName);
                 bool fileExists = File.Exists(filePath);
@@ -226,35 +258,122 @@ namespace AssetStudio.GUI
                 if (fileExists != plugin.IsDownloaded)
                 {
                     plugin.IsDownloaded = fileExists;
-
-                    if (plugin.IsDownloaded)
-                    {
-                        menuItem.Text = $"{plugin.DisplayName} ✓";
-                        menuItem.Click -= (sender, e) => DownloadPlugin(plugin, menuItem);
-                        menuItem.Click += (sender, e) => LaunchPlugin(plugin);
-                    }
-                    else
-                    {
-                        menuItem.Text = plugin.DisplayName;
-                        menuItem.Click -= (sender, e) => LaunchPlugin(plugin);
-                        menuItem.Click += (sender, e) => DownloadPlugin(plugin, menuItem);
-                    }
+                    UpdateMainMenuItemText(plugin, menuItem);
+                    UpdateSubMenuItemsState(plugin, downloadItem, launchItem, uninstallItem);
                 }
 
-                downloadItem.Enabled = !plugin.IsDownloaded;
-                launchItem.Enabled = plugin.IsDownloaded;
-                uninstallItem.Enabled = plugin.IsDownloaded;
+                CloseOtherPluginDropDowns(menuItem);
+
+                menuItem.ShowDropDown();
             };
 
-            menuItem.MouseUp += (sender, e) =>
+            menuItem.MouseLeave += (sender, e) =>
             {
-                if (e.Button == MouseButtons.Right)
+                var clientRect = menuItem.Bounds;
+                var screenRect = menuItem.GetCurrentParent().RectangleToScreen(clientRect);
+                var mousePos = Control.MousePosition;
+
+                bool isMouseInDropDown = menuItem.DropDown.Visible &&
+                                        menuItem.DropDown.Bounds.Contains(Control.MousePosition);
+
+                if (!screenRect.Contains(mousePos) && !isMouseInDropDown)
                 {
-                    contextMenu.Show(Cursor.Position);
+                    menuItem.HideDropDown();
+                }
+            };
+
+            menuItem.DropDown.MouseLeave += (sender, e) =>
+            {
+                var mousePos = Control.MousePosition;
+                var menuItemScreenRect = menuItem.GetCurrentParent().RectangleToScreen(menuItem.Bounds);
+
+                if (!menuItemScreenRect.Contains(mousePos) &&
+                    !menuItem.DropDown.Bounds.Contains(menuItem.DropDown.PointToClient(mousePos)))
+                {
+                    menuItem.HideDropDown();
+                }
+            };
+
+            menuItem.Click += (sender, e) =>
+            {
+                if (plugin.Name == "CriFsV2Lib.Definitions.dll")
+                {
+                    return;
+                }
+
+                if (plugin.IsDownloaded)
+                {
+                    LaunchPlugin(plugin);
+                }
+                else
+                {
+                    DownloadPlugin(plugin, menuItem);
                 }
             };
 
             return menuItem;
+        }
+
+        private static void CloseOtherPluginDropDowns(ToolStripMenuItem currentMenuItem)
+        {
+            var parentMenu = currentMenuItem.Owner as MenuStrip;
+            if (parentMenu != null)
+            {
+                foreach (ToolStripItem item in parentMenu.Items)
+                {
+                    var pluginMenu = item as ToolStripMenuItem;
+                    if (pluginMenu != null && pluginMenu.Text == "插件")
+                    {
+                        foreach (ToolStripItem pluginItem in pluginMenu.DropDownItems)
+                        {
+                            var pluginMenuItem = pluginItem as ToolStripMenuItem;
+                            if (pluginMenuItem != null && pluginMenuItem != currentMenuItem && pluginMenuItem.DropDown.Visible)
+                            {
+                                pluginMenuItem.HideDropDown();
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static void UpdateMainMenuItemText(PluginInfo plugin, ToolStripMenuItem menuItem)
+        {
+            if (plugin.IsDownloaded)
+            {
+                menuItem.Text = $"{plugin.DisplayName} ✓";
+            }
+            else
+            {
+                menuItem.Text = plugin.DisplayName;
+            }
+        }
+
+        private static void UpdateSubMenuItemsState(PluginInfo plugin, ToolStripMenuItem downloadItem,
+            ToolStripMenuItem launchItem, ToolStripMenuItem uninstallItem)
+        {
+            downloadItem.Enabled = !plugin.IsDownloaded;
+            launchItem.Enabled = plugin.IsDownloaded;
+            uninstallItem.Enabled = plugin.IsDownloaded;
+            if (plugin.Name == "CriFsV2Lib.Definitions.dll")
+            {
+                launchItem.Enabled = false;
+            }
+            else
+            {
+                launchItem.Enabled = plugin.IsDownloaded;
+            }
+
+            uninstallItem.Enabled = plugin.IsDownloaded;
+            if (plugin.IsDownloaded)
+            {
+                downloadItem.Text = "下载 ✓";
+            }
+            else
+            {
+                downloadItem.Text = "下载";
+            }
         }
         public class DownloadSpeedCalculator
         {
@@ -368,11 +487,14 @@ namespace AssetStudio.GUI
                     if (File.Exists(filePath))
                     {
                         plugin.IsDownloaded = true;
-                        menuItem.Text = $"{plugin.DisplayName} ✓";
-
-                        menuItem.Click -= (sender, e) => DownloadPlugin(plugin, menuItem);
-                        menuItem.Click += (sender, e) => LaunchPlugin(plugin);
-
+                        UpdateMainMenuItemText(plugin, menuItem);
+                        if (menuItem.DropDownItems.Count >= 3)
+                        {
+                            UpdateSubMenuItemsState(plugin,
+                                menuItem.DropDownItems[0] as ToolStripMenuItem,
+                                menuItem.DropDownItems[1] as ToolStripMenuItem,
+                                menuItem.DropDownItems[2] as ToolStripMenuItem);
+                        }
                         MessageBox.Show($"{plugin.DisplayName}下载完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
@@ -389,6 +511,11 @@ namespace AssetStudio.GUI
 
         public static void LaunchPlugin(PluginInfo plugin)
         {
+            if (plugin.Name == "CriFsV2Lib.Definitions.dll")
+            {
+                MessageBox.Show($"{plugin.DisplayName}是依赖文件，无法直接启动。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
             if (!plugin.IsDownloaded)
             {
                 MessageBox.Show($"请先下载{plugin.DisplayName}", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -425,6 +552,9 @@ namespace AssetStudio.GUI
         {
             try
             {
+                // 设置解析程序集失败时的处理
+                AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+
                 Assembly assembly = Assembly.LoadFrom(filePath);
 
                 var formTypes = assembly.GetTypes()
@@ -464,9 +594,89 @@ namespace AssetStudio.GUI
                     throw new Exception($"无法创建窗体实例: {mainFormType.FullName}");
                 }
             }
+            catch (ReflectionTypeLoadException ex)
+            {
+                // 处理类型加载异常，尝试忽略缺失的依赖
+                var loaderExceptions = ex.LoaderExceptions;
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine($"加载插件时遇到依赖问题，尝试继续运行:");
+
+                foreach (var loaderException in loaderExceptions)
+                {
+                    if (loaderException is FileNotFoundException fileNotFound)
+                    {
+                        sb.AppendLine($"缺失依赖: {fileNotFound.FileName}");
+                        // 记录但不阻止启动
+                        continue;
+                    }
+                }
+
+                // 尝试从可加载的类型中查找窗体
+                var loadableTypes = ex.Types.Where(t => t != null);
+                var formTypes = loadableTypes.Where(t => typeof(Form).IsAssignableFrom(t) && !t.IsAbstract).ToList();
+
+                if (formTypes.Count > 0)
+                {
+                    Type mainFormType = formTypes.FirstOrDefault(t =>
+                        t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase)) ?? formTypes[0];
+
+                    try
+                    {
+                        Form mainForm = Activator.CreateInstance(mainFormType) as Form;
+                        if (mainForm != null)
+                        {
+                            mainForm.StartPosition = FormStartPosition.CenterScreen;
+                            mainForm.Show();
+
+                            // 显示警告但不阻止使用
+                            MessageBox.Show($"{sb.ToString()}\n\n插件可能部分功能受限。",
+                                "依赖警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                    }
+                    catch (Exception createEx)
+                    {
+                        throw new Exception($"创建窗体实例失败: {createEx.Message}\n{sb}", createEx);
+                    }
+                }
+
+                throw new Exception($"加载插件失败:\n{sb}", ex);
+            }
             catch (Exception ex)
             {
                 MessageBox.Show($"加载内置DLL插件失败:{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
+            }
+        }
+
+        // 程序集解析失败时的处理
+        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            try
+            {
+                string assemblyName = new AssemblyName(args.Name).Name;
+
+                // 尝试在插件目录中查找
+                string pluginPath = Path.Combine(pluginsDirectory, assemblyName + ".dll");
+                if (File.Exists(pluginPath))
+                {
+                    return Assembly.LoadFrom(pluginPath);
+                }
+
+                string currentPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, assemblyName + ".dll");
+                if (File.Exists(currentPath))
+                {
+                    return Assembly.LoadFrom(currentPath);
+                }
+
+                return null;
+            }
+            catch
+            {
+                return null;
             }
         }
 
@@ -491,10 +701,14 @@ namespace AssetStudio.GUI
                     }
 
                     plugin.IsDownloaded = false;
-                    menuItem.Text = plugin.DisplayName;
-
-                    menuItem.Click -= (sender, e) => LaunchPlugin(plugin);
-                    menuItem.Click += (sender, e) => DownloadPlugin(plugin, menuItem);
+                    UpdateMainMenuItemText(plugin, menuItem);
+                    if (menuItem.DropDownItems.Count >= 3)
+                    {
+                        UpdateSubMenuItemsState(plugin,
+                            menuItem.DropDownItems[0] as ToolStripMenuItem,
+                            menuItem.DropDownItems[1] as ToolStripMenuItem,
+                            menuItem.DropDownItems[2] as ToolStripMenuItem);
+                    }
 
                     MessageBox.Show($"{plugin.DisplayName}卸载完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -1028,6 +1242,11 @@ namespace AssetStudio.GUI
                     {
                         item.BackColor = SystemColors.Info;
                         item.ForeColor = SystemColors.InfoText;
+                        if (plugin.Name == "CriFsV2Lib.Definitions.dll")
+                        {
+                            item.BackColor = SystemColors.Control;
+                            item.ForeColor = SystemColors.GrayText;
+                        }
                     }
                     else
                     {
@@ -1069,6 +1288,11 @@ namespace AssetStudio.GUI
                     var plugin = listView.SelectedItems[0].Tag as Plugins.PluginInfo;
                     if (plugin != null && plugin.IsDownloaded)
                     {
+                        if (plugin.Name == "CriFsV2Lib.Definitions.dll")
+                        {
+                            MessageBox.Show($"{plugin.DisplayName}是依赖文件，无法直接启动。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return;
+                        }
                         Plugins.LaunchPlugin(plugin);
                     }
                 }
