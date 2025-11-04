@@ -22,7 +22,7 @@ namespace AssetStudio.GUI
             public string DisplayName { get; set; }
             public string DownloadUrl { get; set; }
             public string FileName { get; set; }
-            public bool IsDownloaded { get; set; }
+            public bool IsDownloaded { get; set; } = false;
             public bool IsExternalTool { get; set; }
             public bool IsBuiltInDll { get; set; }
             public bool IsZipFile { get; set; }
@@ -48,7 +48,6 @@ namespace AssetStudio.GUI
                 DisplayName = "万能二进制提取器",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/FileExtractor.dll",
                 FileName = "FileExtractor.dll",
-                IsDownloaded = false,
                 IsExternalTool = false,
                 IsBuiltInDll = true
             },
@@ -58,7 +57,6 @@ namespace AssetStudio.GUI
                 DisplayName = "万能字节移除器",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/ByteRemover.dll",
                 FileName = "ByteRemover.dll",
-                IsDownloaded = false,
                 IsExternalTool = false,
                 IsBuiltInDll = true
             },
@@ -68,7 +66,6 @@ namespace AssetStudio.GUI
                 DisplayName = "收藏夹管理器",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/FavoritesManager.dll",
                 FileName = "FavoritesManager.dll",
-                IsDownloaded = false,
                 IsExternalTool = false,
                 IsBuiltInDll = true
             },
@@ -78,7 +75,6 @@ namespace AssetStudio.GUI
                 DisplayName = "quickbms批量提取器",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/quickbmsbatch.dll",
                 FileName = "quickbmsbatch.dll",
-                IsDownloaded = false,
                 IsExternalTool = false,
                 IsBuiltInDll = true
             },
@@ -88,7 +84,6 @@ namespace AssetStudio.GUI
                 DisplayName = "超级工具箱",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/Super-toolbox.dll",
                 FileName = "Super-toolbox.dll",
-                IsDownloaded = false,
                 IsExternalTool = false,
                 IsBuiltInDll = true
             },
@@ -98,7 +93,6 @@ namespace AssetStudio.GUI
                 DisplayName = "超级工具箱dll依赖",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/CriFsV2Lib.Definitions.dll",
                 FileName = "CriFsV2Lib.Definitions.dll",
-                IsDownloaded = false,
                 IsExternalTool = false,
                 IsBuiltInDll = false
             },
@@ -108,7 +102,6 @@ namespace AssetStudio.GUI
                 DisplayName = "USM视频查看器汉化版",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/Sofdec2_Viewer.exe",
                 FileName = "Sofdec2_Viewer.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -118,7 +111,6 @@ namespace AssetStudio.GUI
                 DisplayName = "bink视频播放器",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/radvideo64.exe",
                 FileName = "radvideo64.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -128,7 +120,6 @@ namespace AssetStudio.GUI
                 DisplayName = "quickbms汉化版",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/quickbms.exe",
                 FileName = "quickbms.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -138,7 +129,6 @@ namespace AssetStudio.GUI
                 DisplayName = "quickbms_4gb_files汉化版",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/quickbms_4gb_files.exe",
                 FileName = "quickbms_4gb_files.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -148,7 +138,6 @@ namespace AssetStudio.GUI
                 DisplayName = "RioX汉化版",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/RioX.exe",
                 FileName = "RioX汉化版.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -158,7 +147,6 @@ namespace AssetStudio.GUI
                 DisplayName = "LUCA system pak解包器汉化版",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/pak_explorer.exe",
                 FileName = "pak_explorer.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -168,7 +156,6 @@ namespace AssetStudio.GUI
                 DisplayName = "PlayStation音频提取器",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/PSound.exe",
                 FileName = "PSound.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -178,7 +165,6 @@ namespace AssetStudio.GUI
                 DisplayName = "WinAsar汉化版",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/WinAsar.exe",
                 FileName = "WinAsar汉化版.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -188,7 +174,6 @@ namespace AssetStudio.GUI
                 DisplayName = "AudioCUE编辑器",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/ACE.exe",
                 FileName = "ACE.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -198,7 +183,6 @@ namespace AssetStudio.GUI
                 DisplayName = "完美世界pck解包工具",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/WinPCK.exe",
                 FileName = "WinPCK.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -208,7 +192,6 @@ namespace AssetStudio.GUI
                 DisplayName = "3ds/wiiu音频提取器",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/RetsukoSoundTool.exe",
                 FileName = "RetsukoSoundTool.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -218,7 +201,6 @@ namespace AssetStudio.GUI
                 DisplayName = "免费不限速下载器",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/Motrix_x64.exe",
                 FileName = "Motrix_x64.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -228,7 +210,6 @@ namespace AssetStudio.GUI
                 DisplayName = "Umodel辅助器",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/UmodelHelper.exe",
                 FileName = "UmodelHelper.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -238,7 +219,6 @@ namespace AssetStudio.GUI
                 DisplayName = "cmakegui汉化版",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/cmake-gui.exe",
                 FileName = "cmake-gui.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -248,7 +228,6 @@ namespace AssetStudio.GUI
                 DisplayName = "xwb打包解包工具",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/QuickWaveBank.exe",
                 FileName = "QuickWaveBank.exe",
-                IsDownloaded = false,
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
@@ -372,7 +351,6 @@ namespace AssetStudio.GUI
                     DisplayName = "FSB打包工具",
                     DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/fsbank.zip",
                     FileName = "fsbank.zip",
-                   IsDownloaded = false,
                    IsExternalTool = true,
                    IsBuiltInDll = false,
                    IsZipFile = true,
