@@ -809,28 +809,81 @@ namespace AssetStudio.GUI
 
                 Assembly assembly = Assembly.LoadFrom(filePath);
 
-                var wpfWindowTypes = assembly.GetTypes()
-                    .Where(t => t.FullName?.Contains("System.Windows.Window") == true ||
-                               (t.BaseType?.FullName?.Contains("System.Windows.Window") == true))
-                    .Where(t => !t.IsAbstract)
-                    .ToList();
-
                 var winFormsTypes = assembly.GetTypes()
                     .Where(t => typeof(Form).IsAssignableFrom(t) && !t.IsAbstract)
                     .ToList();
 
-                if (wpfWindowTypes.Count == 0 && winFormsTypes.Count == 0)
+                var wpfWindowTypes = new List<Type>();
+                try
                 {
-                    throw new Exception($"在{plugin.FileName}中找不到窗体类(WPF Window或WinForms Form)");
+                    Type wpfWindowType = Type.GetType("System.Windows.Window, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+                    if (wpfWindowType != null)
+                    {
+                        wpfWindowTypes = assembly.GetTypes()
+                            .Where(t => wpfWindowType.IsAssignableFrom(t) && !t.IsAbstract)
+                            .ToList();
+                    }
+                }
+                catch
+                {
                 }
 
-                if (wpfWindowTypes.Count > 0)
+                if (wpfWindowTypes.Count == 0 && winFormsTypes.Count == 0)
                 {
-                    LaunchWpfWindow(plugin, wpfWindowTypes);
+                    throw new Exception($"在{plugin.FileName}中找不到窗体类(WPF Window 或 WinForms Form)");
+                }
+
+                Type mainWindowType = null;
+
+                if (plugin.Name.Contains("SuperToolbox", StringComparison.OrdinalIgnoreCase) ||
+                    plugin.DisplayName.Contains("超级工具箱", StringComparison.OrdinalIgnoreCase))
+                {
+                    mainWindowType = winFormsTypes.FirstOrDefault(t =>
+                        t.Name.Contains("SuperToolbox", StringComparison.OrdinalIgnoreCase) ||
+                        t.FullName.Contains("SuperToolbox", StringComparison.OrdinalIgnoreCase) ||
+                        t.Name.Contains("MainForm", StringComparison.OrdinalIgnoreCase) ||
+                        t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (mainWindowType == null)
+                {
+                    mainWindowType = winFormsTypes.FirstOrDefault(t =>
+                        t.Name.Contains("MainForm", StringComparison.OrdinalIgnoreCase) ||
+                        t.Name.Equals("MainForm", StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (mainWindowType == null)
+                {
+                    mainWindowType = winFormsTypes.FirstOrDefault(t =>
+                        t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (mainWindowType == null && wpfWindowTypes.Count > 0)
+                {
+                    mainWindowType = wpfWindowTypes.FirstOrDefault(t =>
+                        t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase)) ?? wpfWindowTypes[0];
+                }
+
+                if (mainWindowType == null)
+                {
+                    if (winFormsTypes.Count > 0)
+                        mainWindowType = winFormsTypes[0];
+                    else if (wpfWindowTypes.Count > 0)
+                        mainWindowType = wpfWindowTypes[0];
+                }
+
+                if (mainWindowType == null)
+                {
+                    throw new Exception("无法确定主窗口类型");
+                }
+
+                if (IsWpfWindowType(mainWindowType))
+                {
+                    LaunchWpfWindow(plugin, new List<Type> { mainWindowType });
                 }
                 else
                 {
-                    LaunchWinFormsForm(plugin, winFormsTypes);
+                    LaunchWinFormsForm(plugin, new List<Type> { mainWindowType });
                 }
             }
             catch (ReflectionTypeLoadException ex)
@@ -850,32 +903,83 @@ namespace AssetStudio.GUI
 
                 var loadableTypes = ex.Types.Where(t => t != null);
 
-                var wpfWindowTypes = loadableTypes
-                    .Where(t => t.FullName?.Contains("System.Windows.Window") == true ||
-                               (t.BaseType?.FullName?.Contains("System.Windows.Window") == true))
-                    .Where(t => !t.IsAbstract)
-                    .ToList();
-
                 var winFormsTypes = loadableTypes
                     .Where(t => typeof(Form).IsAssignableFrom(t) && !t.IsAbstract)
                     .ToList();
 
-                if (wpfWindowTypes.Count > 0 || winFormsTypes.Count > 0)
+                var wpfWindowTypes = new List<Type>();
+                try
+                {
+                    Type wpfWindowType = Type.GetType("System.Windows.Window, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+                    if (wpfWindowType != null)
+                    {
+                        wpfWindowTypes = loadableTypes
+                            .Where(t => wpfWindowType.IsAssignableFrom(t) && !t.IsAbstract)
+                            .ToList();
+                    }
+                }
+                catch
+                {
+                }
+
+                if (winFormsTypes.Count > 0 || wpfWindowTypes.Count > 0)
                 {
                     try
                     {
-                        if (wpfWindowTypes.Count > 0)
+                        Type mainWindowType = null;
+
+                        if (plugin.Name.Contains("SuperToolbox", StringComparison.OrdinalIgnoreCase) ||
+                            plugin.DisplayName.Contains("超级工具箱", StringComparison.OrdinalIgnoreCase))
                         {
-                            LaunchWpfWindow(plugin, wpfWindowTypes);
-                        }
-                        else
-                        {
-                            LaunchWinFormsForm(plugin, winFormsTypes);
+                            mainWindowType = winFormsTypes.FirstOrDefault(t =>
+                                t.Name.Contains("SuperToolbox", StringComparison.OrdinalIgnoreCase) ||
+                                t.FullName.Contains("SuperToolbox", StringComparison.OrdinalIgnoreCase) ||
+                                t.Name.Contains("MainForm", StringComparison.OrdinalIgnoreCase) ||
+                                t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase));
                         }
 
-                        MessageBox.Show($"{sb.ToString()}\n\n插件可能部分功能受限。",
-                            "依赖警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
+                        if (mainWindowType == null)
+                        {
+                            mainWindowType = winFormsTypes.FirstOrDefault(t =>
+                                t.Name.Contains("MainForm", StringComparison.OrdinalIgnoreCase) ||
+                                t.Name.Equals("MainForm", StringComparison.OrdinalIgnoreCase));
+                        }
+
+                        if (mainWindowType == null)
+                        {
+                            mainWindowType = winFormsTypes.FirstOrDefault(t =>
+                                t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase));
+                        }
+
+                        if (mainWindowType == null && wpfWindowTypes.Count > 0)
+                        {
+                            mainWindowType = wpfWindowTypes.FirstOrDefault(t =>
+                                t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase)) ?? wpfWindowTypes[0];
+                        }
+
+                        if (mainWindowType == null)
+                        {
+                            if (winFormsTypes.Count > 0)
+                                mainWindowType = winFormsTypes[0];
+                            else if (wpfWindowTypes.Count > 0)
+                                mainWindowType = wpfWindowTypes[0];
+                        }
+
+                        if (mainWindowType != null)
+                        {
+                            if (IsWpfWindowType(mainWindowType))
+                            {
+                                LaunchWpfWindow(plugin, new List<Type> { mainWindowType });
+                            }
+                            else
+                            {
+                                LaunchWinFormsForm(plugin, new List<Type> { mainWindowType });
+                            }
+
+                            MessageBox.Show($"{sb.ToString()}\n\n插件可能部分功能受限。",
+                                "依赖警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
                     }
                     catch (Exception createEx)
                     {
@@ -894,12 +998,25 @@ namespace AssetStudio.GUI
                 AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
             }
         }
-        private static void LaunchWpfWindow(PluginInfo plugin, List<Type> wpfWindowTypes)
+
+        private static bool IsWpfWindowType(Type type)
         {
             try
             {
-                Type mainWindowType = wpfWindowTypes.FirstOrDefault(t =>
-                    t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase)) ?? wpfWindowTypes[0];
+                Type wpfWindowType = Type.GetType("System.Windows.Window, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+                return wpfWindowType != null && wpfWindowType.IsAssignableFrom(type);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        private static void LaunchWpfWindow(PluginInfo plugin, List<Type> windowTypes)
+        {
+            try
+            {
+                Type mainWindowType = windowTypes.FirstOrDefault(t =>
+                    t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase)) ?? windowTypes[0];
 
                 if (mainWindowType == null)
                 {
@@ -921,7 +1038,7 @@ namespace AssetStudio.GUI
                     windowStartupLocationProperty.SetValue(mainWindow, centerScreenValue);
                 }
 
-                var showMethod = mainWindowType.GetMethod("Show");
+                var showMethod = mainWindowType.GetMethod("Show", Type.EmptyTypes);
                 if (showMethod != null)
                 {
                     showMethod.Invoke(mainWindow, null);
@@ -931,40 +1048,47 @@ namespace AssetStudio.GUI
                     throw new Exception($"找不到Show方法:{mainWindowType.FullName}");
                 }
 
-                var activateMethod = mainWindowType.GetMethod("Activate");
+                var activateMethod = mainWindowType.GetMethod("Activate", Type.EmptyTypes);
                 activateMethod?.Invoke(mainWindow, null);
             }
             catch (Exception ex)
             {
-                throw new Exception($"启动 WPF 窗口失败: {ex.Message}", ex);
+                throw new Exception($"启动WPF窗口失败: {ex.Message}", ex);
             }
         }
 
         private static void EnsureWpfApplication()
         {
-            var applicationType = Type.GetType("System.Windows.Application, PresentationFramework");
-            if (applicationType == null)
+            try
             {
-                throw new Exception("未找到WPF PresentationFramework，无法启动WPF窗口");
-            }
-
-            var currentAppProperty = applicationType.GetProperty("Current");
-            var currentApp = currentAppProperty?.GetValue(null);
-
-            if (currentApp == null)
-            {
-                var appConstructor = applicationType.GetConstructor(Type.EmptyTypes);
-                if (appConstructor != null)
+                var applicationType = Type.GetType("System.Windows.Application, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+                if (applicationType == null)
                 {
-                    currentApp = appConstructor.Invoke(null);
+                    throw new Exception("未找到WPF PresentationFramework，无法启动WPF窗口");
+                }
 
-                    var shutdownModeProperty = applicationType.GetProperty("ShutdownMode");
-                    if (shutdownModeProperty != null)
+                var currentAppProperty = applicationType.GetProperty("Current");
+                var currentApp = currentAppProperty?.GetValue(null);
+
+                if (currentApp == null)
+                {
+                    var appConstructor = applicationType.GetConstructor(Type.EmptyTypes);
+                    if (appConstructor != null)
                     {
-                        var onExplicitShutdownValue = Enum.Parse(shutdownModeProperty.PropertyType, "OnExplicitShutdown");
-                        shutdownModeProperty.SetValue(currentApp, onExplicitShutdownValue);
+                        currentApp = appConstructor.Invoke(null);
+
+                        var shutdownModeProperty = applicationType.GetProperty("ShutdownMode");
+                        if (shutdownModeProperty != null)
+                        {
+                            var onExplicitShutdownValue = Enum.Parse(shutdownModeProperty.PropertyType, "OnExplicitShutdown");
+                            shutdownModeProperty.SetValue(currentApp, onExplicitShutdownValue);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"初始化WPF应用程序失败: {ex.Message}", ex);
             }
         }
 
