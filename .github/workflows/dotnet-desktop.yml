@@ -16,21 +16,27 @@ jobs:
       - name: 安装 .NET 运行时
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x  # 匹配项目实际依赖版本
+          dotnet-version: 8.0.x  # 匹配构建日志中的 net8.0 版本
 
       - name: 还原项目依赖
-        run: dotnet restore AssetStudio.sln
+        run: dotnet restore AssetStudio.sln  # 确认解决方案文件名正确
 
       - name: 构建项目（Release 模式）
         run: dotnet build AssetStudio.sln --configuration Release --no-restore
 
+      - name: 查看构建输出目录（调试用）
+        run: |
+          # 查看 GUI 输出目录下的文件，确认 CLI 产物是否存在
+          dir "AssetStudio.GUI/bin/Release/net8.0-windows"
+        shell: pwsh
+
       - name: 压缩构建产物
         run: |
-          # 定义构建产物目录（根据项目输出路径调整）
-          $buildOutputPath = "AssetStudio.CLI/bin/Release/net8.0"
-          # 定义压缩包名称（包含当前日期，避免重名）
-          $zipName = "AssetStudio-CLI-Build-$(Get-Date -Format 'yyyyMMdd-HHmmss').zip"
-          # 使用 PowerShell 压缩目录
+          # 修正构建产物目录（根据日志实际输出路径调整）
+          $buildOutputPath = "AssetStudio.GUI/bin/Release/net8.0-windows"
+          # 定义压缩包名称（包含时间戳）
+          $zipName = "AssetStudio-Build-$(Get-Date -Format 'yyyyMMdd-HHmmss').zip"
+          # 压缩目录下所有文件
           Compress-Archive -Path "$buildOutputPath/*" -DestinationPath "$zipName" -Force
         shell: pwsh
 
@@ -38,5 +44,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: assetstudio-build
-          path: "*.zip"  # 上传所有 zip 压缩包（即上一步生成的构建产物）
-          retention-days: 7  # 保留 7 天，可按需调整
+          path: "*.zip"
+          retention-days: 7
