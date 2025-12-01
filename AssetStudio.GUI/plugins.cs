@@ -86,16 +86,7 @@ namespace AssetStudio.GUI
                 FileName = "Super-toolbox.dll",
                 IsExternalTool = false,
                 IsBuiltInDll = true
-            },
-            new PluginInfo
-            {
-                Name = "CriFsV2Lib.Definitions.dll",
-                DisplayName = "超级工具箱dll依赖",
-                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/CriFsV2Lib.Definitions.dll",
-                FileName = "CriFsV2Lib.Definitions.dll",
-                IsExternalTool = false,
-                IsBuiltInDll = false
-            },
+            },          
             new PluginInfo
             {
                 Name = "Sofdec2Viewer",
@@ -407,7 +398,7 @@ namespace AssetStudio.GUI
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"查找可执行文件时出错: {ex.Message}");
+                    Debug.WriteLine($"查找可执行文件时出错:{ex.Message}");
                     return null;
                 }
             }
@@ -511,10 +502,6 @@ namespace AssetStudio.GUI
 
             menuItem.Click += (sender, e) =>
             {
-                if (plugin.Name == "CriFsV2Lib.Definitions.dll")
-                {
-                    return;
-                }
 
                 if (plugin.IsDownloaded)
                 {
@@ -525,7 +512,6 @@ namespace AssetStudio.GUI
                     DownloadPlugin(plugin, menuItem);
                 }
             };
-
             return menuItem;
         }
 
@@ -566,20 +552,10 @@ namespace AssetStudio.GUI
         }
 
         private static void UpdateSubMenuItemsState(PluginInfo plugin, ToolStripMenuItem downloadItem,
-            ToolStripMenuItem launchItem, ToolStripMenuItem uninstallItem)
+    ToolStripMenuItem launchItem, ToolStripMenuItem uninstallItem)
         {
             downloadItem.Enabled = !plugin.IsDownloaded;
             launchItem.Enabled = plugin.IsDownloaded;
-            uninstallItem.Enabled = plugin.IsDownloaded;
-            if (plugin.Name == "CriFsV2Lib.Definitions.dll")
-            {
-                launchItem.Enabled = false;
-            }
-            else
-            {
-                launchItem.Enabled = plugin.IsDownloaded;
-            }
-
             uninstallItem.Enabled = plugin.IsDownloaded;
             if (plugin.IsDownloaded)
             {
@@ -723,11 +699,11 @@ namespace AssetStudio.GUI
 
                             File.Delete(filePath);
 
-                            Debug.WriteLine($"{plugin.DisplayName} 解压完成，找到文件: {foundExePath}");
+                            Debug.WriteLine($"{plugin.DisplayName} 解压完成，找到文件:{foundExePath}");
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"解压失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show($"解压失败:{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
                     }
@@ -757,11 +733,6 @@ namespace AssetStudio.GUI
 
         public static void LaunchPlugin(PluginInfo plugin)
         {
-            if (plugin.Name == "CriFsV2Lib.Definitions.dll")
-            {
-                MessageBox.Show($"{plugin.DisplayName}是依赖文件，无法直接启动。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
             if (!plugin.IsDownloaded)
             {
                 MessageBox.Show($"请先下载{plugin.DisplayName}", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -830,7 +801,7 @@ namespace AssetStudio.GUI
 
                 if (wpfWindowTypes.Count == 0 && winFormsTypes.Count == 0)
                 {
-                    throw new Exception($"在{plugin.FileName}中找不到窗体类(WPF Window 或 WinForms Form)");
+                    throw new Exception($"在{plugin.FileName}中找不到窗体类(WPF Window或WinForms Form)");
                 }
 
                 Type mainWindowType = null;
@@ -843,6 +814,11 @@ namespace AssetStudio.GUI
                         t.FullName.Contains("SuperToolbox", StringComparison.OrdinalIgnoreCase) ||
                         t.Name.Contains("MainForm", StringComparison.OrdinalIgnoreCase) ||
                         t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase));
+
+                    if (mainWindowType == null && winFormsTypes.Count > 0)
+                    {
+                        mainWindowType = winFormsTypes[0];
+                    }
                 }
 
                 if (mainWindowType == null)
@@ -890,14 +866,29 @@ namespace AssetStudio.GUI
             {
                 var loaderExceptions = ex.LoaderExceptions;
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine($"加载插件时遇到依赖问题，尝试继续运行:");
+
+                bool isSuperToolbox = plugin.Name.Contains("SuperToolbox", StringComparison.OrdinalIgnoreCase) ||
+                                     plugin.DisplayName.Contains("超级工具箱", StringComparison.OrdinalIgnoreCase);
+
+                if (isSuperToolbox)
+                {
+                    sb.AppendLine($"超级工具箱加载时遇到依赖问题，尝试忽略依赖继续运行:");
+                }
+                else
+                {
+                    sb.AppendLine($"加载插件时遇到依赖问题，尝试继续运行:");
+                }
 
                 foreach (var loaderException in loaderExceptions)
                 {
                     if (loaderException is FileNotFoundException fileNotFound)
                     {
-                        sb.AppendLine($"缺失依赖: {fileNotFound.FileName}");
-                        continue;
+                        if (isSuperToolbox && fileNotFound.FileName != null &&
+                            fileNotFound.FileName.Contains("CriFsV2Lib.Definitions", StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue; 
+                        }
+                        sb.AppendLine($"缺失依赖:{fileNotFound.FileName}");
                     }
                 }
 
@@ -928,14 +919,18 @@ namespace AssetStudio.GUI
                     {
                         Type mainWindowType = null;
 
-                        if (plugin.Name.Contains("SuperToolbox", StringComparison.OrdinalIgnoreCase) ||
-                            plugin.DisplayName.Contains("超级工具箱", StringComparison.OrdinalIgnoreCase))
+                        if (isSuperToolbox)
                         {
                             mainWindowType = winFormsTypes.FirstOrDefault(t =>
                                 t.Name.Contains("SuperToolbox", StringComparison.OrdinalIgnoreCase) ||
                                 t.FullName.Contains("SuperToolbox", StringComparison.OrdinalIgnoreCase) ||
                                 t.Name.Contains("MainForm", StringComparison.OrdinalIgnoreCase) ||
                                 t.Name.Contains("Main", StringComparison.OrdinalIgnoreCase));
+
+                            if (mainWindowType == null && winFormsTypes.Count > 0)
+                            {
+                                mainWindowType = winFormsTypes[0];
+                            }
                         }
 
                         if (mainWindowType == null)
@@ -976,14 +971,17 @@ namespace AssetStudio.GUI
                                 LaunchWinFormsForm(plugin, new List<Type> { mainWindowType });
                             }
 
-                            MessageBox.Show($"{sb.ToString()}\n\n插件可能部分功能受限。",
-                                "依赖警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            if (!isSuperToolbox)
+                            {
+                                MessageBox.Show($"{sb.ToString()}\n\n插件可能部分功能受限。",
+                                    "依赖警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            }
                             return;
                         }
                     }
                     catch (Exception createEx)
                     {
-                        throw new Exception($"创建窗体实例失败: {createEx.Message}\n{sb}", createEx);
+                        throw new Exception($"创建窗体实例失败:{createEx.Message}\n{sb}", createEx);
                     }
                 }
 
@@ -1028,7 +1026,7 @@ namespace AssetStudio.GUI
                 var mainWindow = Activator.CreateInstance(mainWindowType);
                 if (mainWindow == null)
                 {
-                    throw new Exception($"无法创建 WPF 窗口实例: {mainWindowType.FullName}");
+                    throw new Exception($"无法创建WPF窗口实例:{mainWindowType.FullName}");
                 }
 
                 var windowStartupLocationProperty = mainWindowType.GetProperty("WindowStartupLocation");
@@ -1053,7 +1051,7 @@ namespace AssetStudio.GUI
             }
             catch (Exception ex)
             {
-                throw new Exception($"启动WPF窗口失败: {ex.Message}", ex);
+                throw new Exception($"启动WPF窗口失败:{ex.Message}", ex);
             }
         }
 
@@ -1088,7 +1086,7 @@ namespace AssetStudio.GUI
             }
             catch (Exception ex)
             {
-                throw new Exception($"初始化WPF应用程序失败: {ex.Message}", ex);
+                throw new Exception($"初始化WPF应用程序失败:{ex.Message}", ex);
             }
         }
 
@@ -1119,7 +1117,7 @@ namespace AssetStudio.GUI
             }
             else
             {
-                throw new Exception($"无法创建窗体实例: {mainFormType.FullName}");
+                throw new Exception($"无法创建窗体实例:{mainFormType.FullName}");
             }
         }
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
@@ -1622,7 +1620,6 @@ namespace AssetStudio.GUI
                     {
                         item.BackColor = SystemColors.Info;
                         item.ForeColor = SystemColors.InfoText;
-                        if (plugin.Name == "CriFsV2Lib.Definitions.dll")
                         {
                             item.BackColor = SystemColors.Control;
                             item.ForeColor = SystemColors.GrayText;
@@ -1663,7 +1660,6 @@ namespace AssetStudio.GUI
                     }
                 }
             }
-
             private void LaunchSelected()
             {
                 if (listView.SelectedItems.Count > 0)
@@ -1671,16 +1667,10 @@ namespace AssetStudio.GUI
                     var plugin = listView.SelectedItems[0].Tag as Plugins.PluginInfo;
                     if (plugin != null && plugin.IsDownloaded)
                     {
-                        if (plugin.Name == "CriFsV2Lib.Definitions.dll")
-                        {
-                            MessageBox.Show($"{plugin.DisplayName}是依赖文件，无法直接启动。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            return;
-                        }
                         Plugins.LaunchPlugin(plugin);
                     }
                 }
             }
-
             private void UninstallSelected()
             {
                 if (listView.SelectedItems.Count > 0)
