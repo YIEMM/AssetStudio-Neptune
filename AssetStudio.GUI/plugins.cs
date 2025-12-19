@@ -71,15 +71,6 @@ namespace AssetStudio.GUI
             },
             new PluginInfo
             {
-                Name = "quickbmsbatch",
-                DisplayName = "quickbms批量提取器",
-                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/quickbmsbatch.dll",
-                FileName = "quickbmsbatch.dll",
-                IsExternalTool = false,
-                IsBuiltInDll = true
-            },
-            new PluginInfo
-            {
                 Name = "SuperToolbox",
                 DisplayName = "超级工具箱",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/Super-toolbox.dll",
@@ -93,15 +84,6 @@ namespace AssetStudio.GUI
                 DisplayName = "USM视频查看器汉化版",
                 DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/Sofdec2_Viewer.exe",
                 FileName = "Sofdec2_Viewer.exe",
-                IsExternalTool = true,
-                IsBuiltInDll = false
-            },
-            new PluginInfo
-            {
-                Name = "RadVideo",
-                DisplayName = "bink视频播放器",
-                DownloadUrl = "https://gitee.com/valkylia-goddess/AssetStudio-Neptune/releases/download/down/radvideo64.exe",
-                FileName = "radvideo64.exe",
                 IsExternalTool = true,
                 IsBuiltInDll = false
             },
